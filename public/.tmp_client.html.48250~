@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <title>Node Chat</title>
+    </head>
+    <body>
+        <h3>Demo PubSub Faye Node Chat</h3>
+        <div style="width:300px;">
+        	<fieldset><legend>Openly Rant Here:</legend>
+	        	<label for="user">Geek Name:</label><br />
+	        	<input type="text" id="user" value="3L33T H4CK0R" />
+	        	<br /><br />
+	        	<label for="msg">Brilliance to share:</label><br />
+	        	<textarea id="msg" rows="5" cols="40"></textarea>
+	        	<br /><br />
+	        	<input type="button" id="submitter" value="Rant!" />
+       		</fieldset>
+        </div>
+        
+        <div id="messages"></div>
+        
+        <script src="/jquery-1.4.4.min.js"></script>
+        <script src="/faye.js"></script>
+        
+        <script type="text/javascript">
+            var client = new Faye.Client('/faye', {
+                timeout: 120
+            });
+            
+            client.subscribe('/channel', function(message){
+				console.log(message)
+                $("div#messages").append("<div>" + message.user + ":</div>");
+				$("div#messages").append("<div>" + message.msg + ":</div>");
+            });
+			
+			
+			$('#submitter').click(function(){
+				var $user = $('#user').val(), $msg=$('#msg').val();
+				$.ajax({ 
+					url: 'http://localhost:8000/message', 
+					type: 'POST',
+				 	data: 'user='+$user+'&msg='+$msg,
+					success: function(){}
+				});
+			});
+        </script>
+    </body>
+</html>
+<!--
+curl -X POST -H "Content-Type:application/json" -d '{"message":"hello node"}' http://localhost:8000/message 
+
+curl -X POST -H "Content-Type:application/x-www-form-urlencoded" -d 'message=hello node form post' http://localhost:8000/message 
+-->
